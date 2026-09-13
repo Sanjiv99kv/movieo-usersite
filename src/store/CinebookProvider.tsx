@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 
 import { CinebookContext, type Booking, type User } from "@/store/cinebook-context";
 
-const STORAGE_KEY = "cinebook:state";
+const STORAGE_KEY = "movieo:state";
+/** Pre-rebrand key. Read once so existing bookings and watchlists survive. */
+const LEGACY_STORAGE_KEY = "cinebook:state";
 
 type Persisted = {
   city: string;
@@ -64,7 +66,7 @@ const DEFAULTS: Persisted = {
 
 function load(): Persisted {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw) as Partial<Persisted>;
     return { ...DEFAULTS, ...parsed };
