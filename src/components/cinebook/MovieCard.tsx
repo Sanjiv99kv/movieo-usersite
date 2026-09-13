@@ -2,19 +2,23 @@ import { Heart, Star, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import type { Movie } from "@/data/cinebook";
 import { cn } from "@/lib/utils";
 import { useCinebook } from "@/store/cinebook-context";
 
-export function MovieCard({ movie, large = false }: { movie: Movie; large?: boolean }) {
+export function MovieCard({
+  movie,
+  showReason = false,
+}: {
+  movie: Movie;
+  /** Renders the recommendation rationale under the title, where the movie has one. */
+  showReason?: boolean;
+}) {
   const { isSaved, toggleWatchlist } = useCinebook();
   const saved = isSaved(movie.id);
 
   return (
-    <article
-      className={cn("group shrink-0", large ? "w-[78vw] max-w-md" : "w-[58vw] max-w-[240px]")}
-    >
+    <article className="group w-[58vw] max-w-[240px] shrink-0">
       <div className="relative overflow-hidden rounded-lg bg-card shadow-card">
         <Link to={`/movies/${movie.id}`} className="block" aria-label={`${movie.title} details`}>
           <img
@@ -23,10 +27,7 @@ export function MovieCard({ movie, large = false }: { movie: Movie; large?: bool
             loading="lazy"
             width={1024}
             height={1536}
-            className={cn(
-              "w-full object-cover transition duration-700 group-hover:scale-105",
-              large ? "aspect-[4/5]" : "aspect-[2/3]",
-            )}
+            className="aspect-[2/3] w-full object-cover transition duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 flex items-end bg-poster-overlay p-4 opacity-0 transition duration-300 group-hover:opacity-100">
             <span className="inline-flex h-9 w-full translate-y-2 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition duration-300 group-hover:translate-y-0">
@@ -57,54 +58,10 @@ export function MovieCard({ movie, large = false }: { movie: Movie; large?: bool
         <p className="mt-1 text-sm text-muted-foreground">
           {movie.genre} · {movie.language}
         </p>
-        {large && movie.reason && (
+        {showReason && movie.reason && (
           <p className="mt-3 text-xs font-semibold uppercase text-primary">{movie.reason}</p>
         )}
       </div>
     </article>
-  );
-}
-
-/** Horizontal movie rail with arrow controls, used by every "row" on the home page. */
-export function MovieCarousel({
-  movies,
-  large = false,
-  className,
-}: {
-  movies: Movie[];
-  large?: boolean;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex gap-5 overflow-x-auto pb-5 hide-scrollbar", className)}>
-      {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} large={large} />
-      ))}
-    </div>
-  );
-}
-
-export function RailArrows({ onMove }: { onMove: (direction: number) => void }) {
-  return (
-    <div className="hidden gap-2 sm:flex">
-      <Button size="icon" variant="outline" onClick={() => onMove(-1)} aria-label="Scroll left">
-        <ArrowGlyph direction="left" />
-      </Button>
-      <Button size="icon" variant="outline" onClick={() => onMove(1)} aria-label="Scroll right">
-        <ArrowGlyph direction="right" />
-      </Button>
-    </div>
-  );
-}
-
-function ArrowGlyph({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4">
-      <path
-        d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

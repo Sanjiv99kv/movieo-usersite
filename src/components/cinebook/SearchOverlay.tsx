@@ -39,7 +39,7 @@ export function SearchOverlay({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-[8%] max-h-[84vh] max-w-3xl translate-y-0 overflow-auto border-border bg-card p-0">
-        <DialogTitle className="sr-only">Search CineBook</DialogTitle>
+        <DialogTitle className="sr-only">Search MOVIEO</DialogTitle>
         <DialogDescription className="sr-only">Search movies, cinemas and people</DialogDescription>
 
         <div className="flex items-center gap-3 border-b border-border p-5">

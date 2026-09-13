@@ -1,28 +1,20 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function MovieCardSkeleton({ large = false }: { large?: boolean }) {
+export function MovieCardSkeleton() {
   return (
-    <div className={large ? "w-[78vw] max-w-md shrink-0" : "w-[58vw] max-w-[240px] shrink-0"}>
-      <Skeleton
-        className={large ? "aspect-[4/5] w-full rounded-lg" : "aspect-[2/3] w-full rounded-lg"}
-      />
+    <div className="w-[58vw] max-w-[240px] shrink-0">
+      <Skeleton className="aspect-[2/3] w-full rounded-lg" />
       <Skeleton className="mt-4 h-5 w-3/4" />
       <Skeleton className="mt-2 h-4 w-1/2" />
     </div>
   );
 }
 
-export function MovieRailSkeleton({
-  count = 4,
-  large = false,
-}: {
-  count?: number;
-  large?: boolean;
-}) {
+export function MovieRailSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="flex gap-5 overflow-hidden pb-5">
       {Array.from({ length: count }, (_, index) => (
-        <MovieCardSkeleton key={index} large={large} />
+        <MovieCardSkeleton key={index} />
       ))}
     </div>
   );

@@ -32,8 +32,8 @@ export default function ConfirmationPage() {
   const cinema = getCinema(booking?.cinemaId);
 
   usePageMeta({
-    title: "Booking confirmed — CineBook",
-    description: "Your CineBook tickets are confirmed.",
+    title: "Booking confirmed — MOVIEO",
+    description: "Your MOVIEO tickets are confirmed.",
     twitterCard: "summary",
   });
 
@@ -43,7 +43,7 @@ export default function ConfirmationPage() {
     // Loaded on demand so the QR encoder stays out of the main bundle.
     import("qrcode")
       .then((module) =>
-        module.default.toDataURL(`CINEBOOK:${booking.id}`, {
+        module.default.toDataURL(`MOVIEO:${booking.id}`, {
           margin: 1,
           width: 320,
           color: { dark: "#0f0f14", light: "#ffffff" },

@@ -3,6 +3,19 @@ import { useMemo } from "react";
 import { formatRupees, seatTiers, type Seat, type SeatRow } from "@/data/booking";
 import { cn } from "@/lib/utils";
 
+/** Seats still bookable in a tier, for the "N available" note on its header. */
+function availableIn(rows: SeatRow[]): number {
+  return rows.reduce(
+    (total, row) =>
+      total +
+      row.groups.reduce(
+        (count, group) => count + group.filter((seat) => seat.status === "available").length,
+        0,
+      ),
+    0,
+  );
+}
+
 const STATUS_LABEL: Record<Seat["status"], string> = {
   available: "available",
   occupied: "already booked",
@@ -32,8 +45,10 @@ export function SeatMap({
 
   return (
     <div className="overflow-x-auto pb-2 hide-scrollbar">
-      <div className="mx-auto w-max min-w-full px-2">
-        <div className="mx-auto mb-2 h-1.5 w-[70%] rounded-full bg-primary/70 shadow-glow" />
+      {/* w-max shrinks to the widest row so mx-auto can actually centre it — with
+          min-w-full the block filled the container and the rows hugged the left. */}
+      <div className="mx-auto w-max px-2">
+        <div className="mx-auto mb-2 h-3 w-[70%] rounded-[100%/0_0_100%_100%] border-t-[3px] border-primary/70 shadow-glow" />
         <p className="mb-9 text-center text-xs uppercase tracking-[0.3em] text-muted-foreground">
           Screen this way
         </p>
@@ -44,10 +59,13 @@ export function SeatMap({
               <h3 className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">
                 {tier.name}
               </h3>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs font-semibold">
                 {formatRupees(tierRows[0]?.groups[0]?.[0]?.price ?? tier.price)}
               </span>
               <span className="h-px flex-1 bg-border" />
+              <span className="shrink-0 text-xs text-muted-foreground">
+                {availableIn(tierRows)} available
+              </span>
             </div>
 
             <div className="space-y-2">

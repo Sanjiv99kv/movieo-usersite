@@ -4,7 +4,7 @@ import { usePageMeta } from "@/hooks/use-page-meta";
 
 export default function NotFoundPage() {
   usePageMeta({
-    title: "Page not found — CineBook",
+    title: "Page not found — MOVIEO",
     description: "The page you're looking for doesn't exist or has been moved.",
     twitterCard: "summary",
   });

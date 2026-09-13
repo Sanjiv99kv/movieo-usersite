@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { SeatLegend, SeatMap } from "@/components/cinebook/SeatMap";
 import { SeatMapSkeleton } from "@/components/cinebook/Skeletons";
+import { VegMark } from "@/components/cinebook/FoodMenu";
 import { StepIndicator } from "@/components/cinebook/StepIndicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,15 +50,21 @@ export default function BookingPage() {
   const [paying, setPaying] = useState(false);
 
   usePageMeta({
-    title: movie ? `Book ${movie.title} — CineBook` : "Book tickets — CineBook",
-    description: "Pick your seats and complete your CineBook booking.",
+    title: movie ? `Book ${movie.title} — MOVIEO` : "Book tickets — MOVIEO",
+    description: "Pick your seats and complete your MOVIEO booking.",
     twitterCard: "summary",
   });
 
   const rows = useMemo(
     () =>
-      showId ? buildSeatMap(`${movieId}|${cinemaId}|${showId}`, showtime?.surcharge ?? 0) : [],
-    [movieId, cinemaId, showId, showtime?.surcharge],
+      showId
+        ? buildSeatMap(
+            `${movieId}|${cinemaId}|${showId}`,
+            showtime?.surcharge ?? 0,
+            movie?.priceModifier ?? 0,
+          )
+        : [],
+    [movieId, cinemaId, showId, showtime?.surcharge, movie?.priceModifier],
   );
 
   if (!movie || !cinema || !showtime) return <NotFoundPage />;
@@ -205,8 +212,16 @@ export default function BookingPage() {
                       className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3"
                     >
                       <div className="min-w-0">
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">{item.detail}</p>
+                        <p className="flex items-center gap-2 font-semibold">
+                          <VegMark veg={item.veg} />
+                          {item.name}
+                          {item.tag && (
+                            <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                              {item.tag}
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold">{formatRupees(item.price)}</span>

@@ -35,7 +35,7 @@ export function downloadTicket(details: TicketDetails, qrDataUrl: string) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340">
   <rect width="720" height="340" rx="18" fill="#12121a"/>
   <rect x="1" y="1" width="718" height="338" rx="17" fill="none" stroke="#2f2f3d"/>
-  <text x="40" y="58" fill="#e8483c" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" letter-spacing="3">CINEBOOK E-TICKET</text>
+  <text x="40" y="58" fill="#e8483c" font-family="Helvetica,Arial,sans-serif" font-size="13" font-weight="bold" letter-spacing="3">MOVIEO E-TICKET</text>
   <text x="40" y="106" fill="#f6f4f1" font-family="Helvetica,Arial,sans-serif" font-size="30" font-weight="bold">${escapeXml(details.movieTitle)}</text>
   <text x="40" y="140" fill="#9d9dab" font-family="Helvetica,Arial,sans-serif" font-size="15">${escapeXml(details.cinemaName)} · ${escapeXml(details.cinemaLocation)}</text>
   <line x1="40" y1="168" x2="470" y2="168" stroke="#2f2f3d"/>
@@ -71,7 +71,7 @@ export function downloadCalendarInvite(
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//CineBook//EN",
+    "PRODID:-//MOVIEO//EN",
     "BEGIN:VEVENT",
     `UID:${details.bookingId}@cinebook`,
     `DTSTAMP:${toICSDate(new Date())}`,

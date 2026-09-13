@@ -19,10 +19,10 @@ export default function CinemaDetailsPage() {
   const [dateId, setDateId] = useState(() => dates[0]?.id ?? "");
 
   usePageMeta({
-    title: cinema ? `${cinema.name} — CineBook` : "Cinema — CineBook",
+    title: cinema ? `${cinema.name} — MOVIEO` : "Cinema — MOVIEO",
     description: cinema
       ? `Showtimes and screens at ${cinema.name}, ${cinema.location}.`
-      : "Cinema showtimes on CineBook.",
+      : "Cinema showtimes on MOVIEO.",
   });
 
   if (!cinema) return <NotFoundPage />;
@@ -53,7 +53,7 @@ export default function CinemaDetailsPage() {
             <span>{cinema.distance}</span>
             <span>{cinema.screens} screens</span>
             <span className="flex items-center gap-1 text-rating">
-              <Star className="size-4 fill-current" /> 4.6
+              <Star className="size-4 fill-current" /> {cinema.rating}
             </span>
           </p>
           <div className="mt-5 flex flex-wrap gap-2">

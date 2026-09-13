@@ -1,8 +1,9 @@
-import { Clapperboard, LogOut, Mail } from "lucide-react";
+import { LogOut, Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+import logo from "@/assets/movieo-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -22,9 +23,9 @@ function nameFromEmail(email: string): string {
 
 export default function LoginPage() {
   usePageMeta({
-    title: "Sign In — CineBook",
-    description: "Sign in to CineBook to manage bookings, reminders and your watchlist.",
-    ogDescription: "Access your CineBook movie account.",
+    title: "Sign In — MOVIEO",
+    description: "Sign in to MOVIEO to manage bookings, reminders and your watchlist.",
+    ogDescription: "Access your MOVIEO movie account.",
     twitterCard: "summary",
   });
 
@@ -76,10 +77,8 @@ export default function LoginPage() {
   return (
     <div className="page-shell grid min-h-screen place-items-center pb-24 pt-28">
       <section className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-card sm:p-9">
-        <div className="mx-auto grid size-12 place-items-center rounded-lg bg-primary">
-          <Clapperboard />
-        </div>
-        <h1 className="mt-6 text-center font-display text-3xl font-bold">Welcome to CineBook</h1>
+        <img src={logo} alt="MOVIEO" width={877} height={219} className="mx-auto h-8 w-auto" />
+        <h1 className="mt-6 text-center font-display text-3xl font-bold">Welcome to MOVIEO</h1>
         <p className="mt-2 text-center text-sm text-muted-foreground">
           Sign in to keep every ticket and favourite in one place.
         </p>
@@ -132,7 +131,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to CineBook?{" "}
+          New to MOVIEO?{" "}
           <button
             type="button"
             className="font-semibold text-primary"

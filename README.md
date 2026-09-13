@@ -56,7 +56,7 @@ Left:
 
 Original movie-platform logo
 
-Logo name: "CineBook" (you may use this temporarily)
+Logo name: "MOVIEO" (you may use this temporarily)
 
 Small cinematic/play icon next to the logo
 
@@ -84,7 +84,7 @@ User avatar when logged in
 
 Example:
 
-CineBook
+MOVIEO
 
 Home | Movies | Cinemas | Offers
 
@@ -553,7 +553,7 @@ Create a comprehensive footer.
 
 Columns:
 
-CineBook
+MOVIEO
 
 About Us
 
@@ -595,7 +595,7 @@ LinkedIn
 
 Bottom:
 
-© 2026 CineBook. All rights reserved.
+© 2026 MOVIEO. All rights reserved.
 
 17. SEARCH EXPERIENCE
 
@@ -804,7 +804,7 @@ Password
 
 Also:
 
-"New to CineBook? Create an account"
+"New to MOVIEO? Create an account"
 
 Keep the design minimal.
 

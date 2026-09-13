@@ -1,20 +1,24 @@
 import {
-  Clapperboard,
   Film,
   Heart,
   Home,
+  Instagram,
+  Linkedin,
   LogOut,
   MapPin,
   Menu,
+  Popcorn,
   Search,
   Ticket,
   User,
   X,
+  Youtube,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
+import logo from "@/assets/movieo-logo.png";
 import { CitySelector } from "@/components/cinebook/CitySelector";
 import { SearchOverlay } from "@/components/cinebook/SearchOverlay";
 import { Button } from "@/components/ui/button";
@@ -81,13 +85,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         }`}
       >
         <div className="page-shell grid h-18 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 lg:grid-cols-[1fr_auto_1fr]">
-          <Link to="/" className="flex min-w-0 items-center gap-2" aria-label="CineBook home">
-            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-glow">
-              <Clapperboard className="size-5" />
-            </span>
-            <span className="truncate font-display text-xl font-bold tracking-normal">
-              Cine<span className="text-primary">Book</span>
-            </span>
+          <Link to="/" className="flex min-w-0 items-center" aria-label="MOVIEO home">
+            <img
+              src={logo}
+              alt="MOVIEO"
+              width={877}
+              height={219}
+              className="h-7 w-auto shrink-0 sm:h-8"
+            />
           </Link>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
@@ -238,7 +243,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 const footerGroups: { heading: string; links: { label: string; to: string }[] }[] = [
   {
-    heading: "CineBook",
+    heading: "MOVIEO",
     links: [
       { label: "About Us", to: "/" },
       { label: "Careers", to: "/" },
@@ -272,41 +277,59 @@ const footerGroups: { heading: string; links: { label: string; to: string }[] }[
   },
 ];
 
-const socials = ["Instagram", "X", "YouTube", "LinkedIn"];
+/** X has no lucide glyph — lucide's `Twitter` is still the old bird. */
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const socials = [
+  { label: "Instagram", Icon: Instagram },
+  { label: "X", Icon: XIcon },
+  { label: "YouTube", Icon: Youtube },
+  { label: "LinkedIn", Icon: Linkedin },
+];
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-surface pb-24 pt-14 md:pb-8">
+    <footer className="border-t border-border bg-surface pb-24 pt-16 md:pb-10">
       <div className="page-shell">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_repeat(4,1fr)]">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(4,1fr)]">
           <div>
-            <div className="mb-4 flex items-center gap-2 font-display text-xl font-bold">
-              <Clapperboard className="text-primary" /> CineBook
-            </div>
-            <p className="max-w-xs text-sm leading-6 text-muted-foreground">
+            <Link to="/" className="flex items-center" aria-label="MOVIEO home">
+              <img src={logo} alt="MOVIEO" width={877} height={219} className="h-8 w-auto" />
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">
               More than a seat. Your next great story starts here.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {socials.map((social) => (
+
+            <div className="mt-6 flex gap-2">
+              {socials.map(({ label, Icon }) => (
                 <a
-                  key={social}
+                  key={label}
                   href="/"
                   onClick={(event) => event.preventDefault()}
-                  className="rounded-md bg-secondary px-3 py-1.5 text-xs font-semibold transition hover:bg-accent"
+                  aria-label={label}
+                  title={label}
+                  className="grid size-10 place-items-center rounded-full bg-secondary text-muted-foreground transition duration-300 hover:-translate-y-0.5 hover:bg-primary hover:text-primary-foreground"
                 >
-                  {social}
+                  <Icon className="size-4" />
                 </a>
               ))}
             </div>
           </div>
+
           {footerGroups.map((group) => (
             <div key={group.heading}>
-              <h3 className="mb-4 text-sm font-semibold">{group.heading}</h3>
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-wider">{group.heading}</h3>
               {group.links.map((link) => (
                 <Link
                   key={link.label}
                   to={link.to}
-                  className="mb-2 block text-sm text-muted-foreground transition hover:text-foreground"
+                  className="mb-2.5 block text-sm text-muted-foreground transition hover:text-primary"
                 >
                   {link.label}
                 </Link>
@@ -314,9 +337,13 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <span>© 2026 CineBook. All rights reserved.</span>
-          <span>Made for movie nights.</span>
+
+        <div className="mt-14 flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span>© {new Date().getFullYear()} MOVIEO. All rights reserved.</span>
+          <span className="flex items-center gap-1.5">
+            Made for movie nights
+            <Popcorn className="size-4 text-primary" />
+          </span>
         </div>
       </div>
     </footer>

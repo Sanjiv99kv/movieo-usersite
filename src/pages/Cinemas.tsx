@@ -12,7 +12,7 @@ import { useCinebook } from "@/store/cinebook-context";
 
 export default function CinemasPage() {
   usePageMeta({
-    title: "Cinemas Near You — CineBook",
+    title: "Cinemas Near You — MOVIEO",
     description: "Explore premium cinemas, screens and movie showtimes near you.",
     ogDescription: "Explore premium cinemas and movie showtimes near you.",
   });

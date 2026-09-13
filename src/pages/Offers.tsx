@@ -7,9 +7,9 @@ import { usePageMeta } from "@/hooks/use-page-meta";
 
 export default function OffersPage() {
   usePageMeta({
-    title: "Movie Offers — CineBook",
+    title: "Movie Offers — MOVIEO",
     description: "Save on movie tickets, food combos and premium cinema experiences.",
-    ogTitle: "Exclusive Movie Offers — CineBook",
+    ogTitle: "Exclusive Movie Offers — MOVIEO",
     ogDescription: "Unlock savings on cinema tickets and movie experiences.",
   });
 
@@ -27,7 +27,7 @@ export default function OffersPage() {
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {offers.map((offer, index) => (
           <Reveal key={offer.code} delay={index * 60}>
-            <OfferCard offer={offer} detailed />
+            <OfferCard offer={offer} />
           </Reveal>
         ))}
       </div>

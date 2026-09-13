@@ -1,4 +1,4 @@
-import { cinemas, getMovie, type Cinema } from "@/data/cinebook";
+import { cinemas, getMovie, type Cinema, type Movie } from "@/data/cinebook";
 
 /**
  * Showtimes, seat layouts and occupancy are generated rather than stored, but every
@@ -48,7 +48,8 @@ export function getShowDates(count = 6): ShowDate[] {
     const weekday = WEEKDAYS[date.getDay()] ?? "";
     return {
       id: toISODate(date),
-      label: index === 0 ? "Today" : index === 1 ? "Tomorrow" : weekday,
+      // "Tomorrow" overflows the date tile — every other day is a 3-letter weekday.
+      label: index === 0 ? "Today" : weekday,
       weekday,
       day: String(date.getDate()).padStart(2, "0"),
       month: MONTHS[date.getMonth()] ?? "",
@@ -101,7 +102,9 @@ function screenableFormats(movieFormats: string[], cinema: Cinema): string[] {
 
 export function getShows(movieId: string, dateId: string): CinemaShows[] {
   const movie = getMovie(movieId);
-  if (!movie) return [];
+  // A film that has not opened has no screenings. Callers that render showtimes gate on
+  // status themselves, but anything querying this directly was getting invented shows.
+  if (!movie || movie.status !== "now-showing") return [];
 
   return cinemas.map((cinema) => {
     const formats = screenableFormats(movie.formats, cinema);
@@ -175,7 +178,7 @@ export type SeatRow = {
 const SEATS_PER_ROW = 16;
 const AISLES_AFTER = [4, 12];
 
-export function buildSeatMap(showKey: string, surcharge: number): SeatRow[] {
+export function buildSeatMap(showKey: string, surcharge: number, priceModifier = 0): SeatRow[] {
   const random = rng(showKey);
   const rows: SeatRow[] = [];
 
@@ -191,7 +194,7 @@ export function buildSeatMap(showKey: string, surcharge: number): SeatRow[] {
           row,
           number,
           tierId: tier.id,
-          price: tier.price + surcharge,
+          price: tier.price + surcharge + priceModifier,
           status,
         });
         if (AISLES_AFTER.includes(number)) groups.push([]);
@@ -265,4 +268,65 @@ export function applyPromo(rawCode: string, seatPrices: number[], foodTotal: num
   if (!rule) return { ok: false, reason: "unknown" };
   const promo = rule(seatPrices, foodTotal);
   return promo ? { ok: true, promo } : { ok: false, reason: "not-eligible" };
+}
+
+export const TIME_BANDS = ["Morning", "Afternoon", "Evening", "Night"] as const;
+export type TimeBand = (typeof TIME_BANDS)[number];
+
+/** Label for a band, so the filter can say what it actually means. */
+export const TIME_BAND_HINT: Record<TimeBand, string> = {
+  Morning: "before 12 PM",
+  Afternoon: "12 – 4 PM",
+  Evening: "4 – 8 PM",
+  Night: "after 8 PM",
+};
+
+function bandOf(showId: string): TimeBand {
+  const hour = Number(showId.split("T")[1]?.slice(0, 2) ?? 0);
+  if (hour < 12) return "Morning";
+  if (hour < 16) return "Afternoon";
+  if (hour < 20) return "Evening";
+  return "Night";
+}
+
+/** True when the movie actually has a screening in that band on that date. */
+export function hasShowInBand(movieId: string, dateId: string, band: TimeBand): boolean {
+  return getShows(movieId, dateId).some((entry) =>
+    entry.showtimes.some((showtime) => !showtime.soldOut && bandOf(showtime.id) === band),
+  );
+}
+
+/** Cheapest ticket for a title: lowest tier, cheapest format it screens in, plus its modifier. */
+export function movieFromPrice(movie: Movie): number {
+  const cheapestTier = Math.min(...seatTiers.map((tier) => tier.price));
+  const cheapestFormat = Math.min(...movie.formats.map((f) => FORMAT_SURCHARGE[f] ?? 0));
+  return cheapestTier + cheapestFormat + movie.priceModifier;
+}
+
+export const PRICE_BANDS = ["Under ₹250", "₹250 – ₹300", "Over ₹300"] as const;
+export type PriceBand = (typeof PRICE_BANDS)[number];
+
+export function matchesPriceBand(price: number, band: PriceBand): boolean {
+  if (band === "Under ₹250") return price < 250;
+  if (band === "₹250 – ₹300") return price >= 250 && price <= 300;
+  return price > 300;
+}
+
+export function inPriceBand(movie: Movie, band: PriceBand): boolean {
+  return matchesPriceBand(movieFromPrice(movie), band);
+}
+
+/** Cheapest seat for one screening: lowest tier + that show's format surcharge + the title's modifier. */
+export function showtimeFromPrice(movie: Movie, showtime: Showtime): number {
+  const cheapestTier = Math.min(...seatTiers.map((tier) => tier.price));
+  return cheapestTier + showtime.surcharge + movie.priceModifier;
+}
+
+/** Which band a screening falls into — Morning / Afternoon / Evening / Night. */
+export function showtimeBand(showtime: Showtime): TimeBand {
+  const hour = Number(showtime.id.split("T")[1]?.slice(0, 2) ?? 0);
+  if (hour < 12) return "Morning";
+  if (hour < 16) return "Afternoon";
+  if (hour < 20) return "Evening";
+  return "Night";
 }

@@ -1,13 +1,13 @@
 import { CalendarDays, Clock3, Heart, Play, Star, Ticket } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Reveal } from "@/components/cinebook/Reveal";
+import { Reviews } from "@/components/cinebook/Reviews";
 import { SectionHeading } from "@/components/cinebook/SectionHeading";
-import { MovieDetailsSkeleton, ShowtimesSkeleton } from "@/components/cinebook/Skeletons";
+import { MovieDetailsSkeleton } from "@/components/cinebook/Skeletons";
 import { Button } from "@/components/ui/button";
-import { formatRupees, getShowDates, getShows, seatTiers } from "@/data/booking";
+import { formatRupees, movieFromPrice } from "@/data/booking";
 import { getMovie, movies } from "@/data/cinebook";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -20,15 +20,11 @@ export default function MovieDetailsPage() {
   const movie = getMovie(movieId);
   const loading = useSimulatedLoad(500);
 
-  const dates = useMemo(() => getShowDates(), []);
-  const [dateId, setDateId] = useState(() => dates[0]?.id ?? "");
-  const showsRef = useRef<HTMLDivElement>(null);
-
   const { isSaved, toggleWatchlist } = useCinebook();
 
   usePageMeta({
-    title: movie ? `${movie.title} — CineBook` : "Movie — CineBook",
-    description: movie?.description ?? "Movie details and showtimes on CineBook.",
+    title: movie ? `${movie.title} — MOVIEO` : "Movie — MOVIEO",
+    description: movie?.description ?? "Movie details and showtimes on MOVIEO.",
   });
 
   if (!movie) return <NotFoundPage />;
@@ -38,7 +34,7 @@ export default function MovieDetailsPage() {
   const similar = movies.filter(
     (item) => item.id !== movie.id && item.genres.some((g) => movie.genres.includes(g)),
   );
-  const basePrice = Math.min(...seatTiers.map((tier) => tier.price));
+  const basePrice = movieFromPrice(movie);
 
   return (
     <>
@@ -95,13 +91,10 @@ export default function MovieDetailsPage() {
             <p className="mt-6 max-w-2xl leading-7 text-foreground/80">{movie.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               {movie.status === "now-showing" ? (
-                <Button
-                  size="lg"
-                  onClick={() =>
-                    showsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-                  }
-                >
-                  <Ticket /> Book tickets
+                <Button asChild size="lg">
+                  <Link to={`/movies/${movie.id}/showtimes`}>
+                    <Ticket /> Book tickets · from {formatRupees(basePrice)}
+                  </Link>
                 </Button>
               ) : (
                 <Button size="lg" onClick={() => toast.success("Reminder set successfully.")}>
@@ -140,93 +133,30 @@ export default function MovieDetailsPage() {
       <section className="bg-surface">
         <Reveal className="page-shell section-space">
           <SectionHeading title="Cast" subtitle="The people on screen." />
-          <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar">
+          <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
             {movie.cast.map((member) => (
-              <article key={member.name} className="w-36 shrink-0 text-center">
-                <span className="mx-auto grid size-24 place-items-center rounded-full bg-secondary font-display text-2xl font-bold text-primary">
-                  {member.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .slice(0, 2)
-                    .join("")}
-                </span>
-                <h3 className="mt-4 text-sm font-semibold">{member.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">{member.role}</p>
-              </article>
+              <PersonTile key={member.name} name={member.name} role={member.role} />
             ))}
           </div>
 
           <div className="mt-12">
             <SectionHeading title="Crew" subtitle="The people behind it." />
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
               {movie.crew.map((member, index) => (
-                <div
+                <PersonTile
                   key={`${member.name}-${member.job}-${index}`}
-                  className="rounded-lg border border-border bg-card px-5 py-4"
-                >
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {member.job}
-                  </p>
-                  <p className="mt-1 font-semibold">{member.name}</p>
-                </div>
+                  name={member.name}
+                  role={member.job}
+                />
               ))}
             </div>
           </div>
         </Reveal>
       </section>
 
-      <section ref={showsRef} className="page-shell section-space scroll-mt-24">
-        <SectionHeading
-          title="Available Shows"
-          subtitle={
-            movie.status === "now-showing"
-              ? `Tickets from ${formatRupees(basePrice)} · pick a date and time.`
-              : "Booking opens closer to release."
-          }
-        />
-
-        {movie.status !== "now-showing" ? (
-          <div className="rounded-lg border border-dashed border-border p-10 text-center">
-            <CalendarDays className="mx-auto size-9 text-primary" />
-            <h3 className="mt-5 font-display text-xl font-bold">Releasing {movie.release}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Set a reminder and we will tell you the moment seats open.
-            </p>
-            <Button className="mt-6" onClick={() => toast.success("Reminder set successfully.")}>
-              Remind me
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
-              {dates.map((date) => (
-                <button
-                  key={date.id}
-                  type="button"
-                  onClick={() => setDateId(date.id)}
-                  aria-pressed={date.id === dateId}
-                  className={cn(
-                    "grid w-20 shrink-0 place-items-center rounded-lg border px-3 py-3 transition",
-                    date.id === dateId
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card hover:border-primary/50",
-                  )}
-                >
-                  <span className="text-[11px] font-semibold uppercase tracking-wide">
-                    {date.label}
-                  </span>
-                  <span className="font-display text-xl font-bold">{date.day}</span>
-                  <span className="text-[11px] uppercase">{date.month}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-8">
-              <ShowtimeList key={dateId} movieId={movie.id} dateId={dateId} />
-            </div>
-          </>
-        )}
-      </section>
+      <Reveal as="section" className="page-shell section-space">
+        <Reviews movie={movie} />
+      </Reveal>
 
       {similar.length > 0 && (
         <section className="bg-surface">
@@ -262,101 +192,19 @@ export default function MovieDetailsPage() {
   );
 }
 
-function ShowtimeList({ movieId, dateId }: { movieId: string; dateId: string }) {
-  // Re-mounts on date change (key in the parent) so the skeleton runs per date.
-  const loading = useSimulatedLoad(400);
-  const shows = useMemo(() => getShows(movieId, dateId), [movieId, dateId]);
-
-  if (loading) return <ShowtimesSkeleton />;
-
+/** Uniform tile for a cast or crew member — square art area, name, then role. */
+function PersonTile({ name, role }: { name: string; role: string }) {
   return (
-    <div className="space-y-4">
-      {shows.map(({ cinema, showtimes }) => (
-        <article key={cinema.id} className="rounded-lg border border-border bg-card p-5 sm:p-6">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h3 className="font-display text-lg font-bold">{cinema.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {cinema.location} · {cinema.distance}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {cinema.amenities.map((amenity) => (
-                <span
-                  key={amenity}
-                  className="rounded bg-secondary px-2 py-1 text-[11px] font-semibold"
-                >
-                  {amenity}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {showtimes.length ? (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {showtimes.map((showtime) => (
-                <ShowtimeButton
-                  key={showtime.id}
-                  to={`/booking/${movieId}/${cinema.id}/${showtime.id}`}
-                  time={`${showtime.time} ${showtime.meridiem}`}
-                  format={showtime.format}
-                  seatsLeft={showtime.seatsLeft}
-                  soldOut={showtime.soldOut}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="mt-5 text-sm text-muted-foreground">
-              No shows at this cinema on this date.
-            </p>
-          )}
-        </article>
-      ))}
-    </div>
-  );
-}
-
-function ShowtimeButton({
-  to,
-  time,
-  format,
-  seatsLeft,
-  soldOut,
-}: {
-  to: string;
-  time: string;
-  format: string;
-  seatsLeft: number;
-  soldOut: boolean;
-}) {
-  const fillingFast = !soldOut && seatsLeft < 20;
-
-  if (soldOut) {
-    return (
-      <span className="grid w-24 cursor-not-allowed place-items-center rounded-md border border-border bg-muted/40 px-3 py-2 text-center opacity-60">
-        <span className="text-sm font-semibold line-through">{time}</span>
-        <span className="text-[10px] uppercase text-muted-foreground">Sold out</span>
+    <article className="w-32 shrink-0 sm:w-36">
+      <span className="grid aspect-square w-full place-items-center rounded-xl bg-card font-display text-2xl font-bold text-primary ring-1 ring-inset ring-border transition duration-300 hover:ring-primary/50">
+        {name
+          .split(" ")
+          .map((part) => part[0])
+          .slice(0, 2)
+          .join("")}
       </span>
-    );
-  }
-
-  return (
-    <Link
-      to={to}
-      className={cn(
-        "grid w-24 place-items-center rounded-md border px-3 py-2 text-center transition hover:-translate-y-0.5 hover:border-primary hover:shadow-glow",
-        fillingFast ? "border-rating/60" : "border-border",
-      )}
-    >
-      <span className="text-sm font-semibold">{time}</span>
-      <span
-        className={cn(
-          "text-[10px] uppercase",
-          fillingFast ? "text-rating" : "text-muted-foreground",
-        )}
-      >
-        {fillingFast ? "Filling fast" : format}
-      </span>
-    </Link>
+      <h3 className="mt-3 text-sm font-semibold leading-tight">{name}</h3>
+      <p className="mt-1 text-xs text-muted-foreground">{role}</p>
+    </article>
   );
 }

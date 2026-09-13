@@ -8,6 +8,7 @@ import HomePage from "@/pages/Home";
 // The landing page ships in the main bundle; every other route is fetched on demand.
 const MoviesPage = lazy(() => import("@/pages/Movies"));
 const MovieDetailsPage = lazy(() => import("@/pages/MovieDetails"));
+const ShowtimesPage = lazy(() => import("@/pages/Showtimes"));
 const CinemasPage = lazy(() => import("@/pages/Cinemas"));
 const CinemaDetailsPage = lazy(() => import("@/pages/CinemaDetails"));
 const OffersPage = lazy(() => import("@/pages/Offers"));
@@ -41,6 +42,7 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/movies/:movieId" element={<MovieDetailsPage />} />
+          <Route path="/movies/:movieId/showtimes" element={<ShowtimesPage />} />
           <Route path="/cinemas" element={<CinemasPage />} />
           <Route path="/cinemas/:cinemaId" element={<CinemaDetailsPage />} />
           <Route path="/offers" element={<OffersPage />} />

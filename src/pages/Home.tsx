@@ -9,21 +9,24 @@ import {
   Heart,
   MapPin,
   Play,
+  QrCode,
+  ShieldCheck,
   Smartphone,
   Sparkles,
   Star,
   Ticket,
   Utensils,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import cinemaHall from "@/assets/cinema-hall.jpg";
 import { CinemaCard } from "@/components/cinebook/CinemaCard";
+import { FoodCard } from "@/components/cinebook/FoodMenu";
 import { CitySelector } from "@/components/cinebook/CitySelector";
 import { FormatCard } from "@/components/cinebook/FormatCard";
-import { MovieCard, RailArrows } from "@/components/cinebook/MovieCard";
+import { MovieRail } from "@/components/cinebook/MovieRail";
 import { OfferCard } from "@/components/cinebook/OfferCard";
 import { Reveal } from "@/components/cinebook/Reveal";
 import { SectionHeading } from "@/components/cinebook/SectionHeading";
@@ -48,19 +51,21 @@ import { useCinebook } from "@/store/cinebook-context";
 
 export default function HomePage() {
   usePageMeta({
-    title: "CineBook — Book Movies & Cinema Tickets",
+    title: "MOVIEO — Book Movies & Cinema Tickets",
     description:
-      "Discover now showing movies, premium cinemas, offers and book the best seats with CineBook.",
-    ogTitle: "CineBook — Your Next Great Story",
+      "Discover now showing movies, premium cinemas, offers and book the best seats with MOVIEO.",
+    ogTitle: "MOVIEO — Your Next Great Story",
     ogDescription: "Discover movies and book cinema tickets in a faster, more cinematic way.",
   });
 
   const { city, watchlist, bookings, user } = useCinebook();
   const [cityOpen, setCityOpen] = useState(false);
   const loading = useSimulatedLoad(600);
-  const rail = useRef<HTMLDivElement>(null);
-  const move = (direction: number) =>
-    rail.current?.scrollBy({ left: direction * 520, behavior: "smooth" });
+
+  // A movie is "recommended" when it carries a rationale, which is the line the
+  // card shows under the title — so the copy always matches the data.
+  const recommended = movies.filter((movie) => movie.reason);
+  const cheapestSnack = Math.min(...foodItems.map((item) => item.price));
 
   const upcomingBooking = bookings.find((booking) => booking.status === "upcoming");
   const lastWatched = bookings.find((booking) => booking.status === "completed");
@@ -123,35 +128,34 @@ export default function HomePage() {
         <SectionHeading
           title="Now Showing"
           subtitle="Catch the biggest movies playing near you."
-          action={<RailArrows onMove={move} />}
+          action={
+            <Button asChild variant="outline">
+              <Link to="/movies">
+                View all movies <ChevronRight />
+              </Link>
+            </Button>
+          }
         />
-        {loading ? (
-          <MovieRailSkeleton />
-        ) : (
-          <div ref={rail} className="flex gap-5 overflow-x-auto pb-5 hide-scrollbar">
-            {nowShowing.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </div>
-        )}
-        <Button asChild variant="outline" className="mt-4">
-          <Link to="/movies">
-            View all movies <ChevronRight />
-          </Link>
-        </Button>
+        {loading ? <MovieRailSkeleton /> : <MovieRail movies={nowShowing} />}
       </Reveal>
 
       <section className="bg-surface">
         <Reveal className="page-shell section-space">
-          <SectionHeading title="Recommended For You" subtitle="Movies you might love." />
+          <SectionHeading
+            title="Recommended For You"
+            subtitle="Movies you might love."
+            action={
+              <Button asChild variant="outline">
+                <Link to="/movies">
+                  View all movies <ChevronRight />
+                </Link>
+              </Button>
+            }
+          />
           {loading ? (
-            <MovieRailSkeleton count={3} large />
+            <MovieRailSkeleton count={4} />
           ) : (
-            <div className="flex gap-6 overflow-x-auto pb-5 hide-scrollbar">
-              {movies.slice(1, 4).map((movie) => (
-                <MovieCard key={movie.id} movie={movie} large />
-              ))}
-            </div>
+            <MovieRail movies={recommended} showReason />
           )}
         </Reveal>
       </section>
@@ -282,7 +286,7 @@ export default function HomePage() {
               icon={Heart}
             />
             <JourneyCard
-              eyebrow="CineClub"
+              eyebrow="MOVIEO Club"
               title={`${bookings.length * 120} points`}
               lines={["Earn 2x on every premium format show."]}
               action={{ label: "See offers", to: "/offers" }}
@@ -304,7 +308,9 @@ export default function HomePage() {
             </Button>
           }
         />
-        <div className="flex gap-5 overflow-x-auto pb-4 hide-scrollbar">
+        {/* A grid, not a rail — there are only a handful of venues, and a scroller left
+            dead space on the right once they all fit. */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {cinemas.map((cinema) => (
             <CinemaCard key={cinema.id} cinema={cinema} />
           ))}
@@ -318,15 +324,17 @@ export default function HomePage() {
           loading="lazy"
           width={1536}
           height={1024}
-          className="absolute inset-0 h-full w-full object-cover opacity-20"
+          className="absolute inset-0 h-full w-full object-cover opacity-25"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-transparent" />
+        {/* Fades top-and-bottom rather than left-to-right — the horizontal version left
+            the backdrop visible only on the right, which read as a half-applied wash. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-surface via-surface/75 to-surface" />
         <Reveal className="page-shell section-space relative">
           <SectionHeading
             title="Choose Your Experience"
             subtitle="Every story deserves the perfect screen."
           />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {formatCards.map((format) => (
               <FormatCard key={format.name} format={format} />
             ))}
@@ -354,42 +362,61 @@ export default function HomePage() {
       </Reveal>
 
       <section className="bg-surface">
-        <Reveal className="page-shell section-space grid items-center gap-10 md:grid-cols-2">
-          <img
-            src={foodImageSrc}
-            alt="Popcorn, nachos and drinks"
-            loading="lazy"
-            width={1536}
-            height={1024}
-            className="aspect-[4/3] w-full rounded-lg object-cover"
-          />
-          <div>
-            <span className="eyebrow">Food &amp; beverages</span>
-            <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
-              Complete Your Movie Experience
-            </h2>
-            <p className="mt-4 max-w-lg leading-7 text-muted-foreground">
-              Add a combo while you pick your seats and it will be waiting when you arrive.
-            </p>
-            <ul className="mt-7 space-y-3">
-              {foodItems.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between gap-4 border-b border-border pb-3"
-                >
-                  <div>
-                    <strong className="block">{item.name}</strong>
-                    <span className="text-sm text-muted-foreground">{item.detail}</span>
-                  </div>
-                  <span className="shrink-0 font-semibold">{formatRupees(item.price)}</span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild className="mt-7">
-              <Link to="/movies">
-                <Utensils /> Add with your booking
-              </Link>
-            </Button>
+        <Reveal className="page-shell section-space">
+          <span className="eyebrow">Food &amp; beverages</span>
+          <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
+            Complete Your Movie Experience
+          </h2>
+          <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
+            Add a combo while you pick your seats and it will be waiting when you arrive.
+          </p>
+
+          <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+            {/* The photo has no intrinsic height here — it stretches to the grid row, so
+                it starts and ends flush with the menu beside it. min-h covers the
+                single-column case, where there is no taller sibling to match. */}
+            <div className="relative min-h-72 overflow-hidden rounded-xl lg:min-h-0">
+              <img
+                src={foodImageSrc}
+                alt="Popcorn, nachos and drinks at the concession counter"
+                loading="lazy"
+                width={1536}
+                height={1024}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/25 to-transparent" />
+              <div className="absolute inset-x-5 bottom-5 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Starting at
+                  </p>
+                  <p className="font-display text-2xl font-bold">{formatRupees(cheapestSnack)}</p>
+                </div>
+                <span className="rounded-md bg-background/75 px-3 py-1.5 text-xs font-semibold backdrop-blur">
+                  Counter pickup or served to your seat
+                </span>
+              </div>
+              <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-border" />
+            </div>
+
+            <div className="flex flex-col">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {foodItems.slice(0, 4).map((item) => (
+                  <FoodCard key={item.id} item={item} />
+                ))}
+              </div>
+
+              <div className="mt-7 flex flex-wrap items-center gap-4">
+                <Button asChild>
+                  <Link to="/movies">
+                    <Utensils /> Add with your booking
+                  </Link>
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  {foodItems.length} items on the menu · added at checkout
+                </p>
+              </div>
+            </div>
           </div>
         </Reveal>
       </section>
@@ -428,53 +455,90 @@ export default function HomePage() {
       </Reveal>
 
       <section className="bg-surface">
-        <Reveal className="page-shell section-space grid items-center gap-10 lg:grid-cols-[1fr_auto]">
-          <div>
-            <span className="eyebrow">Stay in the front row</span>
-            <h2 className="mt-3 font-display text-3xl font-bold">Never Miss a Movie</h2>
-            <p className="mt-3 max-w-xl text-muted-foreground">
-              Get movie releases, exclusive offers and personalized recommendations straight to your
-              inbox.
-            </p>
-            <form
-              className="mt-7 flex w-full max-w-lg gap-2"
-              onSubmit={(event) => {
-                event.preventDefault();
-                event.currentTarget.reset();
-                toast.success("You're on the list!");
-              }}
-            >
-              <label className="sr-only" htmlFor="newsletter">
-                Email address
-              </label>
-              <input
-                id="newsletter"
-                type="email"
-                required
-                placeholder="Enter your email"
-                className="min-w-0 flex-1 rounded-md border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-ring"
-              />
-              <Button type="submit">Subscribe</Button>
-            </form>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-6">
-            <p className="eyebrow">Coming soon on mobile</p>
-            <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Tickets, reminders and your QR pass in one place.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button variant="outline" onClick={() => toast("We'll let you know at launch.")}>
-                <Apple /> App Store
-              </Button>
-              <Button variant="outline" onClick={() => toast("We'll let you know at launch.")}>
-                <Smartphone /> Google Play
-              </Button>
+        <Reveal className="page-shell section-space">
+          {/* One panel split evenly in two. The old [1fr_auto] grid pushed the form and
+              the app card to opposite edges and left a dead gap down the middle. */}
+          <div className="relative overflow-hidden rounded-2xl bg-card p-6 sm:p-10">
+            <div className="pointer-events-none absolute -right-24 -top-28 size-72 rounded-full bg-primary/20 blur-3xl" />
+
+            <div className="relative grid gap-10 lg:grid-cols-2 lg:gap-16">
+              <div>
+                <span className="eyebrow">Stay in the front row</span>
+                <h2 className="mt-3 font-display text-3xl font-bold">Never Miss a Movie</h2>
+                <p className="mt-3 max-w-md leading-7 text-muted-foreground">
+                  Get movie releases, exclusive offers and personalized recommendations straight to
+                  your inbox.
+                </p>
+
+                <form
+                  className="mt-7 flex w-full max-w-md flex-col gap-2 sm:flex-row"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    event.currentTarget.reset();
+                    toast.success("You're on the list!");
+                  }}
+                >
+                  <label className="sr-only" htmlFor="newsletter">
+                    Email address
+                  </label>
+                  <input
+                    id="newsletter"
+                    type="email"
+                    required
+                    placeholder="Enter your email"
+                    className="h-11 min-w-0 flex-1 rounded-md border border-input bg-background px-4 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-ring"
+                  />
+                  <Button type="submit" className="h-11 shrink-0">
+                    Subscribe
+                  </Button>
+                </form>
+
+                <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                  <ShieldCheck className="size-3.5 text-primary" />
+                  No spam, and one click to unsubscribe.
+                </p>
+              </div>
+
+              <div className="lg:border-l lg:border-border lg:pl-16">
+                <span className="eyebrow">Coming soon on mobile</span>
+                <h3 className="mt-3 font-display text-xl font-bold">
+                  Your tickets, in your pocket
+                </h3>
+                <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
+                  Tickets, reminders and your QR pass in one place.
+                </p>
+
+                <ul className="mt-6 space-y-3">
+                  {[
+                    { icon: QrCode, label: "Your QR pass works without signal" },
+                    { icon: Bell, label: "Showtime reminders before you leave" },
+                    { icon: Heart, label: "A watchlist that follows you across devices" },
+                  ].map((feature) => (
+                    <li
+                      key={feature.label}
+                      className="flex items-center gap-3 text-sm text-muted-foreground"
+                    >
+                      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
+                        <feature.icon className="size-4" />
+                      </span>
+                      {feature.label}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Button variant="outline" onClick={() => toast("We'll let you know at launch.")}>
+                    <Apple /> App Store
+                  </Button>
+                  <Button variant="outline" onClick={() => toast("We'll let you know at launch.")}>
+                    <Smartphone /> Google Play
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </Reveal>
       </section>
-
-      <CitySelector open={cityOpen} onOpenChange={setCityOpen} />
     </>
   );
 }

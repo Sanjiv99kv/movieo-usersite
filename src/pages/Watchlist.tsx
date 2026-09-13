@@ -9,8 +9,8 @@ import { useCinebook } from "@/store/cinebook-context";
 
 export default function WatchlistPage() {
   usePageMeta({
-    title: "My Watchlist — CineBook",
-    description: "Keep track of movies you want to see on CineBook.",
+    title: "My Watchlist — MOVIEO",
+    description: "Keep track of movies you want to see on MOVIEO.",
     ogDescription: "Movies saved for your next cinema visit.",
     twitterCard: "summary",
   });

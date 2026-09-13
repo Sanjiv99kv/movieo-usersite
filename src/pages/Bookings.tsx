@@ -18,8 +18,8 @@ const TABS: { label: string; status: BookingStatus }[] = [
 
 export default function BookingsPage() {
   usePageMeta({
-    title: "My Bookings — CineBook",
-    description: "View upcoming, completed and cancelled CineBook reservations.",
+    title: "My Bookings — MOVIEO",
+    description: "View upcoming, completed and cancelled MOVIEO reservations.",
     ogDescription: "Your movie tickets and booking history.",
     twitterCard: "summary",
   });
@@ -33,7 +33,7 @@ export default function BookingsPage() {
   return (
     <div className="page-shell min-h-[75vh] pb-24 pt-32">
       <h1 className="font-display text-4xl font-bold sm:text-5xl">My Bookings</h1>
-      <p className="mt-3 text-muted-foreground">Every ticket you have booked with CineBook.</p>
+      <p className="mt-3 text-muted-foreground">Every ticket you have booked with MOVIEO.</p>
 
       <div className="mt-8 flex gap-2">
         {TABS.map((item) => {
