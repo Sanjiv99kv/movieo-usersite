@@ -1060,23 +1060,79 @@ Use realistic placeholder movie images and cinema imagery where necessary.
 
 Make all major buttons and navigation elements functional at the UI level and route users between the relevant pages.
 
-This project was built with [Lovable](https://lovable.dev).
+## Tech stack
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/233eaa60-a775-4f40-b572-bff2fa28c98b).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- [Vite](https://vite.dev) + React 19 + TypeScript
+- [React Router](https://reactrouter.com) for client-side routing
+- [Tailwind CSS v4](https://tailwindcss.com) (via `@tailwindcss/vite`) + [shadcn/ui](https://ui.shadcn.com) components
+- [TanStack Query](https://tanstack.com/query) for data fetching
+- ESLint + Prettier
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
+
+The dev server runs on http://localhost:8080.
+
+| Script              | Description                        |
+| ------------------- | ---------------------------------- |
+| `npm run dev`       | Start the Vite dev server          |
+| `npm run build`     | Production build into `dist/`      |
+| `npm run preview`   | Serve the production build locally |
+| `npm run lint`      | ESLint over the project            |
+| `npm run typecheck` | TypeScript check, no emit          |
+| `npm run format`    | Prettier write                     |
+
+## Project structure
+
+```
+index.html            Vite entry document
+src/
+  main.tsx            React root: providers + error boundary
+  App.tsx             Route table (React Router, lazy-loaded routes)
+  pages/              One component per route
+    Home  Movies  MovieDetails  Cinemas  CinemaDetails
+    Offers  Booking  Confirmation  Bookings  Watchlist  Login  NotFound
+  components/
+    cinebook/         AppShell, SearchOverlay, CitySelector, MovieCard,
+                      CinemaCard, OfferCard, FormatCard, SeatMap,
+                      StepIndicator, Reveal, Skeletons, SectionHeading
+    ui/               shadcn/ui primitives
+  store/              CinebookProvider + context (city, watchlist,
+                      bookings, recent searches, session) in localStorage
+  data/
+    cinebook.ts       Movies, cinemas, offers, formats, food, people
+    booking.ts        Showtime/seat-map generators, pricing, promo codes
+  hooks/              usePageMeta, useSimulatedLoad, useIsMobile
+  lib/                utils, ticket (SVG ticket + .ics download)
+  styles.css          Tailwind entry + design tokens
+```
+
+Routing is declared in `src/App.tsx`; every route except the home page is
+`React.lazy`-loaded into its own chunk. To add a page, create a component in
+`src/pages/` and register a `<Route>` for it.
+
+### How the mock data works
+
+There is no backend. Showtimes, seat layouts and seat occupancy are _generated_
+rather than stored, but every generator is seeded from the show's identity
+(`movie | cinema | date`), so the same show always produces the same times, the
+same taken seats and the same prices across reloads and navigations.
+
+Bookings, watchlist, selected city, recent searches and the demo session live in
+`localStorage` under `cinebook:state`. Clear that key to reset the app to its
+seeded state.
+
+Promo codes accepted at checkout: `CINE50`, `HDFC250`, `FIRSTSHOW`,
+`CAMPUS150`, `SNACK199`.
+
+## Deployment
+
+`npm run build` emits a static bundle in `dist/`. Any static host works — make
+sure it rewrites unknown paths to `index.html` so client-side routes resolve on
+a hard refresh.
