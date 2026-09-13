@@ -1,24 +1,57 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Bell, CalendarDays, ChevronRight, Clock3, Film, MapPin, Play, Search, Sparkles, Star, Ticket, Utensils } from "lucide-react";
+import { useRef } from "react";
+import { toast } from "sonner";
+import heroBackdrop from "@/assets/hero-desert.jpg";
+import cinemaHall from "@/assets/cinema-hall.jpg";
+import { movies, cinemas, offers, formatCards, foodImageSrc } from "@/data/cinebook";
+import { MovieCard, SectionHeading } from "@/components/cinebook/MovieCard";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({ meta: [
+    { title: "CineBook — Book Movies & Cinema Tickets" },
+    { name: "description", content: "Discover now showing movies, premium cinemas, offers and book the best seats with CineBook." },
+    { property: "og:title", content: "CineBook — Your Next Great Story" },
+    { property: "og:description", content: "Discover movies and book cinema tickets in a faster, more cinematic way." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ]}), component: HomePage,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+function HomePage() {
+  const rail = useRef<HTMLDivElement>(null);
+  const move = (direction: number) => rail.current?.scrollBy({ left: direction * 520, behavior: "smooth" });
+  return <>
+    <section className="relative min-h-[680px] overflow-hidden md:h-[82vh] md:min-h-[720px]">
+      <img src={heroBackdrop} alt="Echoes of Arrakis desert world" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[8s] hover:scale-[1.025]" />
+      <div className="absolute inset-0 bg-hero-overlay" />
+      <div className="page-shell relative flex h-full min-h-[680px] items-end pb-20 pt-32 md:min-h-[720px] md:items-center md:pb-16">
+        <div className="max-w-2xl reveal"><span className="eyebrow rounded-sm bg-primary/15 px-2.5 py-1.5">Now showing</span><h1 className="mt-5 font-display text-5xl font-bold leading-[.95] sm:text-7xl lg:text-8xl">ECHOES OF<br/><span className="text-primary">ARRAKIS</span></h1><p className="mt-6 max-w-xl text-base leading-7 text-foreground/75 sm:text-lg">A reluctant heir crosses a forbidden desert to unite its people against an empire that controls the future.</p><div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold"><span className="flex items-center gap-1 text-rating"><Star className="size-4 fill-current" /> 8.8</span><span>Sci-Fi · Adventure</span><span className="flex items-center gap-1"><Clock3 className="size-4" /> 2h 46m</span><span>English</span></div><div className="mt-8 flex flex-wrap gap-3"><Button asChild size="lg"><Link to="/movies/$movieId" params={{ movieId: "echoes-of-arrakis" }}><Ticket /> Book tickets</Link></Button><Button size="lg" variant="outline" onClick={() => toast("Trailer added to your watch queue")}><Play /> Watch trailer</Button><Button asChild size="lg" variant="ghost"><Link to="/movies/$movieId" params={{ movieId: "echoes-of-arrakis" }}>More info <ChevronRight /></Link></Button></div></div>
+      </div>
+      <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2"><span className="h-1 w-8 rounded bg-primary"/><span className="h-1 w-2 rounded bg-foreground/30"/><span className="h-1 w-2 rounded bg-foreground/30"/></div>
+    </section>
+
+    <section className="page-shell relative z-10 -mt-7"><div className="grid gap-4 rounded-lg border border-border bg-card/90 p-4 shadow-card backdrop-blur-xl md:grid-cols-[1fr_auto]"><div className="flex items-center gap-3"><MapPin className="size-5 text-primary"/><div><p className="text-xs text-muted-foreground">Watching movies in</p><p className="font-semibold">Mumbai, Maharashtra</p></div></div><div className="flex gap-2 overflow-x-auto hide-scrollbar">{["Movies", "Cinemas", "Languages", "Genres", "This Weekend"].map((item, index) => <Button key={item} asChild variant={index === 0 ? "default" : "secondary"} className="shrink-0"><Link to={index === 1 ? "/cinemas" : "/movies"}>{item}</Link></Button>)}</div></div></section>
+
+    <section className="page-shell section-space"><SectionHeading title="Now Showing" subtitle="Catch the biggest movies playing near you." action={<div className="hidden gap-2 sm:flex"><Button size="icon" variant="outline" onClick={() => move(-1)} aria-label="Previous movies"><ArrowLeft/></Button><Button size="icon" variant="outline" onClick={() => move(1)} aria-label="Next movies"><ArrowRight/></Button></div>} /><div ref={rail} className="flex gap-5 overflow-x-auto pb-5 hide-scrollbar">{movies.slice(0,4).map((movie) => <MovieCard key={movie.id} movie={movie} />)}</div><Button asChild variant="outline" className="mt-4"><Link to="/movies">View all movies <ChevronRight/></Link></Button></section>
+
+    <section className="bg-surface"><div className="page-shell section-space"><SectionHeading title="Recommended For You" subtitle="Movies picked around your taste."/><div className="flex gap-6 overflow-x-auto pb-5 hide-scrollbar">{movies.slice(1,4).map((movie) => <MovieCard key={movie.id} movie={movie} large />)}</div></div></section>
+
+    <section className="page-shell section-space"><SectionHeading title="Trending Now" subtitle="The stories everyone is talking about."/><div className="flex gap-8 overflow-x-auto py-4 hide-scrollbar">{movies.slice(0,4).map((movie,index) => <Link key={movie.id} to="/movies/$movieId" params={{movieId: movie.id}} className="group relative flex w-[220px] shrink-0 items-end pl-12"><span className="absolute bottom-0 left-0 z-10 font-display text-8xl font-bold text-background [-webkit-text-stroke:2px_var(--foreground)]">0{index+1}</span><img src={movie.poster} alt={`${movie.title} trending poster`} loading="lazy" width={1024} height={1536} className="aspect-[2/3] w-40 rounded-lg object-cover shadow-card transition group-hover:-translate-y-2"/></Link>)}</div></section>
+
+    <section className="bg-surface"><div className="page-shell section-space"><SectionHeading title="Coming Soon" subtitle="Get ready for what's next."/><div className="grid gap-5 md:grid-cols-3">{movies.slice(2,5).map((movie) => <article key={movie.id} className="grid grid-cols-[110px_1fr] overflow-hidden rounded-lg border border-border bg-card"><img src={movie.poster} alt="" loading="lazy" width={1024} height={1536} className="h-full min-h-44 w-full object-cover"/><div className="flex flex-col justify-between p-4"><div><span className="eyebrow">{movie.release}</span><h3 className="mt-2 font-display text-lg font-bold">{movie.title}</h3><p className="mt-1 text-xs text-muted-foreground">{movie.genre}</p></div><Button variant="outline" size="sm" onClick={() => toast.success("Reminder set successfully.")}><Bell/> Remind me</Button></div></article>)}</div></div></section>
+
+    <section className="page-shell section-space"><SectionHeading title="Popular Cinemas" subtitle="Premium screens, closer than you think." action={<Button asChild variant="ghost"><Link to="/cinemas">View all <ChevronRight/></Link></Button>}/><div className="flex gap-5 overflow-x-auto pb-4 hide-scrollbar">{cinemas.map((cinema) => <article key={cinema.id} className="w-[82vw] max-w-sm shrink-0 overflow-hidden rounded-lg border border-border bg-card"><img src={cinema.image} alt={`${cinema.name} auditorium`} loading="lazy" width={1536} height={1024} className="aspect-[16/8] w-full object-cover"/><div className="p-5"><div className="flex items-start justify-between gap-3"><div><h3 className="font-display text-lg font-bold">{cinema.name}</h3><p className="mt-1 text-sm text-muted-foreground">{cinema.location}</p></div><span className="shrink-0 text-xs text-muted-foreground">{cinema.distance}</span></div><p className="mt-4 text-xs text-muted-foreground">{cinema.screens} screens · {cinema.amenities.join(" · ")}</p><Button asChild className="mt-5 w-full"><Link to="/cinemas">View shows</Link></Button></div></article>)}</div></section>
+
+    <section className="relative overflow-hidden bg-surface"><img src={cinemaHall} alt="Premium cinema auditorium" loading="lazy" width={1536} height={1024} className="absolute inset-0 h-full w-full object-cover opacity-20"/><div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/85 to-transparent"/><div className="page-shell section-space relative"><SectionHeading title="Choose Your Experience" subtitle="Every story deserves the perfect screen."/><div className="grid gap-4 md:grid-cols-3">{formatCards.map((format) => <article key={format.name} className="rounded-lg border border-border bg-card/80 p-6 backdrop-blur"><Sparkles className="text-primary"/><h3 className="mt-8 font-display text-2xl font-bold">{format.name}</h3><p className="mt-2 text-sm text-muted-foreground">{format.copy}</p><Button asChild variant="link" className="mt-5 px-0"><Link to="/cinemas">Explore <ChevronRight/></Link></Button></article>)}</div></div></section>
+
+    <section className="page-shell section-space"><SectionHeading title="Exclusive Offers" subtitle="More movies. Less spend."/><div className="grid gap-5 md:grid-cols-3">{offers.map((offer) => <article key={offer.code} className={`${offer.tone} min-h-56 rounded-lg p-6 shadow-card`}><p className="text-xs font-bold uppercase text-foreground/70">{offer.kicker}</p><h3 className="mt-6 max-w-[14ch] font-display text-2xl font-bold">{offer.title}</h3><div className="mt-7 flex items-center justify-between border-t border-foreground/20 pt-4"><code className="font-bold">{offer.code}</code><Button variant="secondary" size="sm" onClick={() => { navigator.clipboard?.writeText(offer.code); toast.success("Offer code copied"); }}>Copy code</Button></div></article>)}</div></section>
+
+    <section className="bg-surface"><div className="page-shell section-space grid items-center gap-8 md:grid-cols-2"><img src={foodImageSrc} alt="Popcorn, nachos and drinks" loading="lazy" width={1536} height={1024} className="aspect-[4/3] w-full rounded-lg object-cover"/><div><span className="eyebrow">Food & beverages</span><h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">Complete Your Movie Experience</h2><p className="mt-4 max-w-lg leading-7 text-muted-foreground">Add a classic popcorn combo with nachos and chilled drinks to your next booking.</p><div className="mt-7 flex items-center gap-4"><div><strong className="block text-lg">Classic Cinema Combo</strong><span className="text-muted-foreground">₹299</span></div><Button onClick={() => toast.success("Combo added to your booking") }><Utensils/> Add to booking</Button></div></div></div></section>
+
+    <section className="page-shell section-space"><SectionHeading title="Book Your Movie in 3 Easy Steps"/><div className="grid gap-4 md:grid-cols-3">{[[Film,"01","Choose a Movie"],[CalendarDays,"02","Pick Your Show"],[Ticket,"03","Enjoy the Story"]].map(([Icon,num,title]) => { const StepIcon = Icon as typeof Film; return <div key={String(num)} className="border-t border-border pt-5"><span className="font-display text-sm text-primary">STEP {String(num)}</span><StepIcon className="mt-8 size-7"/><h3 className="mt-4 font-display text-xl font-bold">{String(title)}</h3></div>; })}</div></section>
+
+    <section className="bg-surface"><div className="page-shell section-space grid items-center gap-8 lg:grid-cols-[1fr_auto]"><div><span className="eyebrow">Stay in the front row</span><h2 className="mt-3 font-display text-3xl font-bold">Never Miss a Movie</h2><p className="mt-3 max-w-xl text-muted-foreground">Get releases, exclusive offers and personal recommendations in your inbox.</p></div><form className="flex w-full max-w-lg gap-2" onSubmit={(event) => { event.preventDefault(); toast.success("You're on the list!"); }}><label className="sr-only" htmlFor="newsletter">Email address</label><input id="newsletter" type="email" required placeholder="Enter your email" className="min-w-0 flex-1 rounded-md border border-input bg-background px-4 outline-none focus:ring-2 focus:ring-ring"/><Button type="submit">Subscribe</Button></form></div></section>
+  </>;
 }
