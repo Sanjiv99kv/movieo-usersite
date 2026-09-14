@@ -1,8 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { MovieCard } from "@/components/cinebook/MovieCard";
-import type { Movie } from "@/data/cinebook";
+import { MovieCard } from "@/components/movieo/MovieCard";
+import type { Movie } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 
 /**

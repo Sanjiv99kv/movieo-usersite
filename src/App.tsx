@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
-import { AppShell } from "@/components/cinebook/AppShell";
+import { AppShell } from "@/components/movieo/AppShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import HomePage from "@/pages/Home";
 
@@ -17,6 +17,11 @@ const ConfirmationPage = lazy(() => import("@/pages/Confirmation"));
 const BookingsPage = lazy(() => import("@/pages/Bookings"));
 const WatchlistPage = lazy(() => import("@/pages/Watchlist"));
 const LoginPage = lazy(() => import("@/pages/Login"));
+const AuthCallbackPage = lazy(() => import("@/pages/AuthCallback"));
+const ResetPasswordPage = lazy(() => import("@/pages/ResetPassword"));
+const VerifyEmailPage = lazy(() => import("@/pages/VerifyEmail"));
+const ProfilePage = lazy(() => import("@/pages/Profile"));
+const SessionsPage = lazy(() => import("@/pages/Sessions"));
 const NotFoundPage = lazy(() => import("@/pages/NotFound"));
 
 function RouteFallback() {
@@ -51,6 +56,11 @@ export function App() {
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/account" element={<ProfilePage />} />
+          <Route path="/account/sessions" element={<SessionsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

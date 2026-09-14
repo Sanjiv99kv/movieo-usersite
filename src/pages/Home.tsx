@@ -22,15 +22,15 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import cinemaHall from "@/assets/cinema-hall.jpg";
-import { CinemaCard } from "@/components/cinebook/CinemaCard";
-import { FoodCard } from "@/components/cinebook/FoodMenu";
-import { CitySelector } from "@/components/cinebook/CitySelector";
-import { FormatCard } from "@/components/cinebook/FormatCard";
-import { MovieRail } from "@/components/cinebook/MovieRail";
-import { OfferCard } from "@/components/cinebook/OfferCard";
-import { Reveal } from "@/components/cinebook/Reveal";
-import { SectionHeading } from "@/components/cinebook/SectionHeading";
-import { MovieRailSkeleton } from "@/components/cinebook/Skeletons";
+import { CinemaCard } from "@/components/movieo/CinemaCard";
+import { FoodCard } from "@/components/movieo/FoodMenu";
+import { CitySelector } from "@/components/movieo/CitySelector";
+import { FormatCard } from "@/components/movieo/FormatCard";
+import { MovieRail } from "@/components/movieo/MovieRail";
+import { OfferCard } from "@/components/movieo/OfferCard";
+import { Reveal } from "@/components/movieo/Reveal";
+import { SectionHeading } from "@/components/movieo/SectionHeading";
+import { MovieRailSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { formatRupees, formatShowDate } from "@/data/booking";
 import {
@@ -44,10 +44,11 @@ import {
   movies,
   nowShowing,
   offers,
-} from "@/data/cinebook";
+} from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
-import { useCinebook } from "@/store/cinebook-context";
+import { displayName, useAuth } from "@/store/auth-context";
+import { useMovieo } from "@/store/movieo-context";
 
 export default function HomePage() {
   usePageMeta({
@@ -58,7 +59,8 @@ export default function HomePage() {
     ogDescription: "Discover movies and book cinema tickets in a faster, more cinematic way.",
   });
 
-  const { city, watchlist, bookings, user } = useCinebook();
+  const { city, watchlist, bookings } = useMovieo();
+  const { user } = useAuth();
   const [cityOpen, setCityOpen] = useState(false);
   const loading = useSimulatedLoad(600);
 
@@ -235,7 +237,7 @@ export default function HomePage() {
         <Reveal as="section" className="page-shell section-space">
           <SectionHeading
             title="Your Movie Journey"
-            subtitle={`Welcome back, ${user.name.split(" ")[0]}.`}
+            subtitle={`Welcome back, ${displayName(user).split(" ")[0]}.`}
             action={
               <Button asChild variant="ghost">
                 <Link to="/bookings">

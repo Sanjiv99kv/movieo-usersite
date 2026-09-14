@@ -2,7 +2,7 @@ import { Armchair, AudioLines, ChevronRight, Maximize, Vibrate, Waves, Wine } fr
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { FormatCard as FormatCardData } from "@/data/cinebook";
+import type { FormatCard as FormatCardData } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 
 /** Each format gets its own mark — six identical sparkles read as unfinished. */

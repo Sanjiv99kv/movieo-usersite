@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { CinebookContext, type Booking, type User } from "@/store/cinebook-context";
+import { MovieoContext, type Booking } from "@/store/movieo-context";
 
 const STORAGE_KEY = "movieo:state";
 /** Pre-rebrand key. Read once so existing bookings and watchlists survive. */
-const LEGACY_STORAGE_KEY = "cinebook:state";
+const LEGACY_STORAGE_KEY = "movieo:state";
 
 type Persisted = {
   city: string;
@@ -12,7 +12,6 @@ type Persisted = {
   watchlist: string[];
   bookings: Booking[];
   recentSearches: string[];
-  user: User | null;
 };
 
 /** One seeded booking of each kind, so a first-time visitor sees a populated dashboard. */
@@ -61,7 +60,6 @@ const DEFAULTS: Persisted = {
   watchlist: ["echoes-of-arrakis", "moonlight-tales"],
   bookings: seedBookings(),
   recentSearches: [],
-  user: null,
 };
 
 function load(): Persisted {
@@ -75,7 +73,7 @@ function load(): Persisted {
   }
 }
 
-export function CinebookProvider({ children }: { children: ReactNode }) {
+export function MovieoProvider({ children }: { children: ReactNode }) {
   // Read storage in the initializer, not in an effect. Loading in an effect races the
   // persist effect below — under StrictMode's double-invoked effects the persist pass
   // writes DEFAULTS back over storage before the loaded state commits, wiping real data.
@@ -135,9 +133,6 @@ export function CinebookProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, recentSearches: [] }));
   }, []);
 
-  const signIn = useCallback((user: User) => setState((prev) => ({ ...prev, user })), []);
-  const signOut = useCallback(() => setState((prev) => ({ ...prev, user: null })), []);
-
   const value = useMemo(
     () => ({
       city: state.city,
@@ -152,9 +147,6 @@ export function CinebookProvider({ children }: { children: ReactNode }) {
       recentSearches: state.recentSearches,
       rememberSearch,
       clearRecentSearches,
-      user: state.user,
-      signIn,
-      signOut,
     }),
     [
       state,
@@ -164,10 +156,8 @@ export function CinebookProvider({ children }: { children: ReactNode }) {
       cancelBooking,
       rememberSearch,
       clearRecentSearches,
-      signIn,
-      signOut,
     ],
   );
 
-  return <CinebookContext.Provider value={value}>{children}</CinebookContext.Provider>;
+  return <MovieoContext.Provider value={value}>{children}</MovieoContext.Provider>;
 }

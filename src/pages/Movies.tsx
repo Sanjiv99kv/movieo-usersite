@@ -1,9 +1,9 @@
 import { Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { ALL, FilterSelect } from "@/components/cinebook/FilterSelect";
-import { MovieCard } from "@/components/cinebook/MovieCard";
-import { MovieGridSkeleton } from "@/components/cinebook/Skeletons";
+import { ALL, FilterSelect } from "@/components/movieo/FilterSelect";
+import { MovieCard } from "@/components/movieo/MovieCard";
+import { MovieGridSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,7 +23,7 @@ import {
   type PriceBand,
   type TimeBand,
 } from "@/data/booking";
-import { movies, type Movie } from "@/data/cinebook";
+import { movies, type Movie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
 import { cn } from "@/lib/utils";

@@ -1,4 +1,4 @@
-import { cinemas, getMovie, type Cinema, type Movie } from "@/data/cinebook";
+import { cinemas, getMovie, type Cinema, type Movie } from "@/data/movieo";
 
 /**
  * Showtimes, seat layouts and occupancy are generated rather than stored, but every

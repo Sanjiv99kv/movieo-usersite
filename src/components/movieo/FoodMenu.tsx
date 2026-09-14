@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { formatRupees } from "@/data/booking";
-import type { FoodItem } from "@/data/cinebook";
+import type { FoodItem } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 
 /** The square veg / non-veg mark used on Indian menus. */

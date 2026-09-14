@@ -2,11 +2,11 @@ import { ArrowLeft, MapPin, Navigation, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { SectionHeading } from "@/components/cinebook/SectionHeading";
-import { ShowtimesSkeleton } from "@/components/cinebook/Skeletons";
+import { SectionHeading } from "@/components/movieo/SectionHeading";
+import { ShowtimesSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { getShowDates, getShows } from "@/data/booking";
-import { getCinema, nowShowing } from "@/data/cinebook";
+import { getCinema, nowShowing } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
 import { cn } from "@/lib/utils";

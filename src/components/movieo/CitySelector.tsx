@@ -14,9 +14,9 @@ import { toast } from "sonner";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { cities, otherCities, popularCities, type PopularCity } from "@/data/cinebook";
+import { cities, otherCities, popularCities, type PopularCity } from "@/data/movieo";
 import { cn } from "@/lib/utils";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 const CITY_ICONS: Record<PopularCity["icon"], LucideIcon> = {
   arch: Landmark,
@@ -47,7 +47,7 @@ export function CitySelector({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { city, setCity, recentCities } = useCinebook();
+  const { city, setCity, recentCities } = useMovieo();
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [locating, setLocating] = useState(false);

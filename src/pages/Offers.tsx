@@ -1,8 +1,8 @@
 import { Sparkles } from "lucide-react";
 
-import { OfferCard } from "@/components/cinebook/OfferCard";
-import { Reveal } from "@/components/cinebook/Reveal";
-import { offers } from "@/data/cinebook";
+import { OfferCard } from "@/components/movieo/OfferCard";
+import { Reveal } from "@/components/movieo/Reveal";
+import { offers } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 
 export default function OffersPage() {

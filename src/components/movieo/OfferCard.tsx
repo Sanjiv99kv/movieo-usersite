@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { offerValidTill, type Offer } from "@/data/cinebook";
+import { offerValidTill, type Offer } from "@/data/movieo";
 import { copyText } from "@/lib/clipboard";
 import { cn } from "@/lib/utils";
 

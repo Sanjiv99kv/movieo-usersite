@@ -1,4 +1,4 @@
-# CineBook roadmap
+# Movieo roadmap
 
 - [ ] Establish cinematic design system and original media assets
 - [ ] Build shared data, navigation, search, selectors, cards, footer, and mobile navigation

@@ -55,7 +55,7 @@ export function downloadTicket(details: TicketDetails, qrDataUrl: string) {
   <text x="615" y="272" fill="#f6f4f1" font-family="Helvetica,Arial,sans-serif" font-size="16" font-weight="bold" text-anchor="middle">${escapeXml(details.bookingId)}</text>
 </svg>`;
 
-  download(new Blob([svg], { type: "image/svg+xml" }), `cinebook-${details.bookingId}.svg`);
+  download(new Blob([svg], { type: "image/svg+xml" }), `movieo-${details.bookingId}.svg`);
 }
 
 function toICSDate(date: Date): string {
@@ -73,7 +73,7 @@ export function downloadCalendarInvite(
     "VERSION:2.0",
     "PRODID:-//MOVIEO//EN",
     "BEGIN:VEVENT",
-    `UID:${details.bookingId}@cinebook`,
+    `UID:${details.bookingId}@movieo`,
     `DTSTAMP:${toICSDate(new Date())}`,
     `DTSTART:${toICSDate(start)}`,
     `DTEND:${toICSDate(end)}`,
@@ -85,6 +85,6 @@ export function downloadCalendarInvite(
   ];
   download(
     new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" }),
-    `cinebook-${details.bookingId}.ics`,
+    `movieo-${details.bookingId}.ics`,
   );
 }

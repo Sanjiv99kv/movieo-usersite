@@ -2,9 +2,9 @@ import { Heart, Star, Ticket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
-import type { Movie } from "@/data/cinebook";
+import type { Movie } from "@/data/movieo";
 import { cn } from "@/lib/utils";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 export function MovieCard({
   movie,
@@ -14,7 +14,7 @@ export function MovieCard({
   /** Renders the recommendation rationale under the title, where the movie has one. */
   showReason?: boolean;
 }) {
-  const { isSaved, toggleWatchlist } = useCinebook();
+  const { isSaved, toggleWatchlist } = useMovieo();
   const saved = isSaved(movie.id);
 
   return (

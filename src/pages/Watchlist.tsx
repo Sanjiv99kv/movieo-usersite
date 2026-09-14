@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { getMovie } from "@/data/cinebook";
+import { getMovie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 export default function WatchlistPage() {
   usePageMeta({
@@ -15,7 +15,7 @@ export default function WatchlistPage() {
     twitterCard: "summary",
   });
 
-  const { watchlist, toggleWatchlist } = useCinebook();
+  const { watchlist, toggleWatchlist } = useMovieo();
   const saved = watchlist.map(getMovie).filter((movie) => movie !== undefined);
 
   return (

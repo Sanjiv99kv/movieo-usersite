@@ -5,10 +5,10 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { formatRupees, formatShowDate } from "@/data/booking";
-import { getCinema, getMovie } from "@/data/cinebook";
+import { getCinema, getMovie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { cn } from "@/lib/utils";
-import { useCinebook, type BookingStatus } from "@/store/cinebook-context";
+import { useMovieo, type BookingStatus } from "@/store/movieo-context";
 
 const TABS: { label: string; status: BookingStatus }[] = [
   { label: "Upcoming", status: "upcoming" },
@@ -24,7 +24,7 @@ export default function BookingsPage() {
     twitterCard: "summary",
   });
 
-  const { bookings, cancelBooking } = useCinebook();
+  const { bookings, cancelBooking } = useMovieo();
   const [tab, setTab] = useState<BookingStatus>("upcoming");
 
   const visible = bookings.filter((booking) => booking.status === tab);

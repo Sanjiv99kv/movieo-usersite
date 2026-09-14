@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { getShowDates, getShows } from "@/data/booking";
-import { nowShowing, type Cinema, type Movie } from "@/data/cinebook";
+import { nowShowing, type Cinema, type Movie } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 
 /**

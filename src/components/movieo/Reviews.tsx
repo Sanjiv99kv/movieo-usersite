@@ -1,6 +1,6 @@
 import { Star, ThumbsUp } from "lucide-react";
 
-import { SectionHeading } from "@/components/cinebook/SectionHeading";
+import { SectionHeading } from "@/components/movieo/SectionHeading";
 import {
   compactCount,
   getReviews,
@@ -8,7 +8,7 @@ import {
   type CriticReview,
   type Review,
 } from "@/data/reviews";
-import type { Movie } from "@/data/cinebook";
+import type { Movie } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 
 /** Initials stand in for avatars — there are no user photos in this project. */

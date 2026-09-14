@@ -19,8 +19,8 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 import logo from "@/assets/movieo-logo.png";
-import { CitySelector } from "@/components/cinebook/CitySelector";
-import { SearchOverlay } from "@/components/cinebook/SearchOverlay";
+import { CitySelector } from "@/components/movieo/CitySelector";
+import { SearchOverlay } from "@/components/movieo/SearchOverlay";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,7 +31,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Toaster } from "@/components/ui/sonner";
-import { useCinebook } from "@/store/cinebook-context";
+import { displayName, useAuth } from "@/store/auth-context";
+import { useMovieo } from "@/store/movieo-context";
 
 const nav = [
   { label: "Home", to: "/" },
@@ -54,7 +55,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [cityOpen, setCityOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
-  const { city, user, signOut } = useCinebook();
+  const { city } = useMovieo();
+  const { user, signOut } = useAuth();
 
   // The seat picker owns the bottom of the screen, so the tab bar steps aside there.
   const hideMobileNav = pathname.startsWith("/booking");
@@ -133,17 +135,20 @@ export function AppShell({ children }: { children: ReactNode }) {
                     aria-label="Account menu"
                     className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
                   >
-                    {user.name.slice(0, 1).toUpperCase()}
+                    {displayName(user).slice(0, 1).toUpperCase()}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
-                    <span className="block truncate">{user.name}</span>
+                    <span className="block truncate">{displayName(user)}</span>
                     <span className="block truncate text-xs font-normal text-muted-foreground">
                       {user.email}
                     </span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/account">My account</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/bookings">My bookings</Link>
                   </DropdownMenuItem>
@@ -153,8 +158,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
-                      signOut();
-                      toast.success("Signed out");
+                      void signOut().then(() => {
+                        toast.success("Signed out");
+                      });
                     }}
                   >
                     <LogOut /> Sign out

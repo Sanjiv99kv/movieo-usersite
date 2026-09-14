@@ -16,9 +16,7 @@ export type Booking = {
   status: BookingStatus;
 };
 
-export type User = { name: string; email: string };
-
-export type CinebookState = {
+export type MovieoState = {
   city: string;
   setCity: (city: string) => void;
   recentCities: string[];
@@ -34,16 +32,12 @@ export type CinebookState = {
   recentSearches: string[];
   rememberSearch: (term: string) => void;
   clearRecentSearches: () => void;
-
-  user: User | null;
-  signIn: (user: User) => void;
-  signOut: () => void;
 };
 
-export const CinebookContext = createContext<CinebookState | null>(null);
+export const MovieoContext = createContext<MovieoState | null>(null);
 
-export function useCinebook(): CinebookState {
-  const value = useContext(CinebookContext);
-  if (!value) throw new Error("useCinebook must be used inside <CinebookProvider>");
+export function useMovieo(): MovieoState {
+  const value = useContext(MovieoContext);
+  if (!value) throw new Error("useMovieo must be used inside <MovieoProvider>");
   return value;
 }

@@ -1,14 +1,14 @@
 import { Navigation, Search } from "lucide-react";
 import { useState } from "react";
 
-import { CinemaRow } from "@/components/cinebook/CinemaCard";
-import { CinemaCardSkeleton } from "@/components/cinebook/Skeletons";
+import { CinemaRow } from "@/components/movieo/CinemaCard";
+import { CinemaCardSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cinemas } from "@/data/cinebook";
+import { cinemas } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 export default function CinemasPage() {
   usePageMeta({
@@ -17,7 +17,7 @@ export default function CinemasPage() {
     ogDescription: "Explore premium cinemas and movie showtimes near you.",
   });
 
-  const { city } = useCinebook();
+  const { city } = useMovieo();
   const loading = useSimulatedLoad(500);
   const [query, setQuery] = useState("");
 

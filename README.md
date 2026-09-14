@@ -101,11 +101,11 @@ src/
   App.tsx               Route table, routes lazy-loaded into their own chunks
   pages/                One component per route
   components/
-    cinebook/           App shell, rails, cards, seat map, filters, reviews
+    movieo/           App shell, rails, cards, seat map, filters, reviews
     ui/                 shadcn/ui primitives
   store/                City, watchlist, bookings, session (localStorage)
   data/
-    cinebook.ts         Movies, cinemas, offers, formats, food, cities
+    movieo.ts         Movies, cinemas, offers, formats, food, cities
     booking.ts          Showtime + seat generators, pricing, promo codes
     reviews.ts          Audience and critic reviews
   hooks/                usePageMeta, useSimulatedLoad, useIsMobile

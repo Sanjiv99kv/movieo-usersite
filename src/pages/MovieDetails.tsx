@@ -2,17 +2,17 @@ import { CalendarDays, Clock3, Heart, Play, Star, Ticket } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { Reveal } from "@/components/cinebook/Reveal";
-import { Reviews } from "@/components/cinebook/Reviews";
-import { SectionHeading } from "@/components/cinebook/SectionHeading";
-import { MovieDetailsSkeleton } from "@/components/cinebook/Skeletons";
+import { Reveal } from "@/components/movieo/Reveal";
+import { Reviews } from "@/components/movieo/Reviews";
+import { SectionHeading } from "@/components/movieo/SectionHeading";
+import { MovieDetailsSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { formatRupees, movieFromPrice } from "@/data/booking";
-import { getMovie, movies } from "@/data/cinebook";
+import { getMovie, movies } from "@/data/movieo";
 import { cn } from "@/lib/utils";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 import NotFoundPage from "@/pages/NotFound";
 
 export default function MovieDetailsPage() {
@@ -20,7 +20,7 @@ export default function MovieDetailsPage() {
   const movie = getMovie(movieId);
   const loading = useSimulatedLoad(500);
 
-  const { isSaved, toggleWatchlist } = useCinebook();
+  const { isSaved, toggleWatchlist } = useMovieo();
 
   usePageMeta({
     title: movie ? `${movie.title} — MOVIEO` : "Movie — MOVIEO",

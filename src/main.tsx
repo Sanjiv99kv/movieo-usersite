@@ -4,7 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { App } from "./App";
-import { CinebookProvider } from "./store/CinebookProvider";
+import { AuthProvider } from "./store/AuthProvider";
+import { MovieoProvider } from "./store/MovieoProvider";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./styles.css";
 
@@ -18,9 +19,11 @@ createRoot(container).render(
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <CinebookProvider>
-            <App />
-          </CinebookProvider>
+          <AuthProvider>
+            <MovieoProvider>
+              <App />
+            </MovieoProvider>
+          </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

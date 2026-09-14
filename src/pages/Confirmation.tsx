@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { StepIndicator } from "@/components/cinebook/StepIndicator";
+import { StepIndicator } from "@/components/movieo/StepIndicator";
 import { Button } from "@/components/ui/button";
 import { formatRupees, formatShowDate } from "@/data/booking";
-import { getCinema, getMovie } from "@/data/cinebook";
+import { getCinema, getMovie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { downloadCalendarInvite, downloadTicket, type TicketDetails } from "@/lib/ticket";
 import NotFoundPage from "@/pages/NotFound";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 /** Turns "2026-09-20" + "7:30" + "PM" into a real Date for the calendar invite. */
 function showStart(dateId: string, time: string, meridiem: string): Date {
@@ -24,7 +24,7 @@ function showStart(dateId: string, time: string, meridiem: string): Date {
 
 export default function ConfirmationPage() {
   const { bookingId } = useParams();
-  const { bookings } = useCinebook();
+  const { bookings } = useMovieo();
   const booking = bookings.find((item) => item.id === bookingId);
   const [qr, setQr] = useState("");
 

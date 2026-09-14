@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { cinemas, movies, people } from "@/data/cinebook";
-import { useCinebook } from "@/store/cinebook-context";
+import { cinemas, movies, people } from "@/data/movieo";
+import { useMovieo } from "@/store/movieo-context";
 
 export function SearchOverlay({
   open,
@@ -17,7 +17,7 @@ export function SearchOverlay({
 }) {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
-  const { recentSearches, rememberSearch, clearRecentSearches } = useCinebook();
+  const { recentSearches, rememberSearch, clearRecentSearches } = useMovieo();
 
   const term = query.trim().toLowerCase();
   const movieHits = term ? movies.filter((m) => m.title.toLowerCase().includes(term)) : [];

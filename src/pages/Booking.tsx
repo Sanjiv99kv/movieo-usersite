@@ -3,10 +3,10 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { SeatLegend, SeatMap } from "@/components/cinebook/SeatMap";
-import { SeatMapSkeleton } from "@/components/cinebook/Skeletons";
-import { VegMark } from "@/components/cinebook/FoodMenu";
-import { StepIndicator } from "@/components/cinebook/StepIndicator";
+import { SeatLegend, SeatMap } from "@/components/movieo/SeatMap";
+import { SeatMapSkeleton } from "@/components/movieo/Skeletons";
+import { VegMark } from "@/components/movieo/FoodMenu";
+import { StepIndicator } from "@/components/movieo/StepIndicator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,12 +20,12 @@ import {
   type PromoResult,
   type Seat,
 } from "@/data/booking";
-import { foodItems, getCinema, getMovie } from "@/data/cinebook";
+import { foodItems, getCinema, getMovie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
 import { cn } from "@/lib/utils";
 import NotFoundPage from "@/pages/NotFound";
-import { useCinebook } from "@/store/cinebook-context";
+import { useMovieo } from "@/store/movieo-context";
 
 const MAX_SEATS = 10;
 const PAYMENT_METHODS = ["UPI", "Credit / Debit Card", "Net Banking", "Wallet"];
@@ -33,7 +33,7 @@ const PAYMENT_METHODS = ["UPI", "Credit / Debit Card", "Net Banking", "Wallet"];
 export default function BookingPage() {
   const { movieId, cinemaId, showId } = useParams();
   const navigate = useNavigate();
-  const { addBooking } = useCinebook();
+  const { addBooking } = useMovieo();
 
   const movie = getMovie(movieId);
   const cinema = getCinema(cinemaId);

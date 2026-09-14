@@ -3,8 +3,8 @@ import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { ALL, FilterSelect } from "@/components/cinebook/FilterSelect";
-import { ShowtimesSkeleton } from "@/components/cinebook/Skeletons";
+import { ALL, FilterSelect } from "@/components/movieo/FilterSelect";
+import { ShowtimesSkeleton } from "@/components/movieo/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,7 +22,7 @@ import {
   type Showtime,
   type TimeBand,
 } from "@/data/booking";
-import { getMovie, type Cinema, type Movie } from "@/data/cinebook";
+import { getMovie, type Cinema, type Movie } from "@/data/movieo";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
 import { cn } from "@/lib/utils";
