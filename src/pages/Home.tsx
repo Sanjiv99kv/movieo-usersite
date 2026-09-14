@@ -17,10 +17,11 @@ import {
   Ticket,
   Utensils,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
+import heroFallback from "@/assets/hero-desert.jpg";
 import cinemaHall from "@/assets/cinema-hall.jpg";
 import { CinemaCard } from "@/components/movieo/CinemaCard";
 import { FoodCard } from "@/components/movieo/FoodMenu";
@@ -44,7 +45,9 @@ import {
   movies,
   nowShowing,
   offers,
+  type Movie,
 } from "@/data/movieo";
+import { api, type HeroSlide } from "@/lib/api";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useSimulatedLoad } from "@/hooks/use-simulated-load";
 import { displayName, useAuth } from "@/store/auth-context";
@@ -575,50 +578,170 @@ function JourneyCard({
   );
 }
 
+/** One slide, however it was sourced — the API or the bundled fallback. */
+interface HeroView {
+  key: string;
+  href: string;
+  eyebrow: string;
+  title: string;
+  blurb: string;
+  backdrop: string;
+  rating: number | null;
+  genres: string[];
+  duration: string | null;
+  language: string | null;
+}
+
+/** 166 -> "2h 46m". The server sends minutes; how they read is ours to decide. */
+function runtimeLabel(minutes: number | null): string | null {
+  if (minutes === null || minutes <= 0) return null;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return hours > 0 ? `${String(hours)}h ${String(rest)}m` : `${String(rest)}m`;
+}
+
+function fromApi(slide: HeroSlide): HeroView {
+  return {
+    key: slide.id,
+    href: `/movies/${slide.slug}`,
+    // Derived server-side from whether screenings exist, so this cannot
+    // advertise "Now showing" for a film with nothing to book.
+    eyebrow: slide.bucket === "now_showing" ? "Now showing" : "Coming soon",
+    title: slide.title,
+    blurb: slide.tagline ?? "",
+    backdrop: slide.backdropUrl ?? heroFallback,
+    rating: slide.criticRating,
+    genres: slide.genres.map((genre) => genre.name),
+    duration: runtimeLabel(slide.runtimeMinutes),
+    language: slide.languages.map((language) => language.name).join(" · ") || null,
+  };
+}
+
+function fromBundled(movie: Movie): HeroView {
+  return {
+    key: movie.id,
+    href: `/movies/${movie.id}`,
+    eyebrow: movie.status === "now-showing" ? "Now showing" : "Coming soon",
+    title: movie.title,
+    blurb: movie.description,
+    backdrop: movie.backdrop,
+    rating: movie.rating,
+    genres: movie.genres,
+    duration: movie.duration,
+    language: movie.language,
+  };
+}
+
 function Hero() {
-  const featured = nowShowing[0];
-  if (!featured) return null;
+  // `null` while the request is in flight, so the first paint does not flash the
+  // fallback and then swap to real data.
+  const [slides, setSlides] = useState<HeroView[] | null>(null);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const { slides: fetched } = await api.hero();
+        if (!cancelled) setSlides(fetched.map(fromApi));
+      } catch {
+        // The homepage is the front door: it renders for a visitor whether or
+        // not the API is up. Falling back is not hiding an error, it is the
+        // page doing its job while the catalogue is unreachable or still empty.
+        if (!cancelled) setSlides([]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const bundled = nowShowing[0];
+  const views =
+    slides === null || slides.length > 0 ? (slides ?? []) : bundled ? [fromBundled(bundled)] : [];
+
+  // Auto-advance, but never for a single slide and never against a stated
+  // preference for less motion.
+  //
+  // Keyed on `active` as well as the count, so every change — a click on a dot
+  // included — starts a fresh dwell. Without that, picking a slide just as the
+  // timer was about to fire shows it for a moment and then moves on, which
+  // reads as the carousel ignoring you.
+  useEffect(() => {
+    if (views.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = window.setTimeout(() => {
+      setActive((current) => (current + 1) % views.length);
+    }, 7000);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [views.length, active]);
+
+  const slide = views[active] ?? views[0];
+
+  // Before the first response there is nothing truthful to show, so hold the
+  // stage's height rather than letting the page jump when it arrives.
+  if (!slide) {
+    return <section className="min-h-[680px] bg-card/40 md:h-[82vh] md:min-h-[720px]" />;
+  }
 
   // "Echoes of Arrakis" -> "ECHOES OF" / "ARRAKIS", the second line in crimson.
-  const words = featured.title.split(" ");
+  const words = slide.title.split(" ");
   const lastWord = words.pop() ?? "";
   const leadWords = words.join(" ");
 
+  const facts = [slide.genres.slice(0, 2).join(" · "), slide.duration, slide.language].filter(
+    (fact): fact is string => Boolean(fact),
+  );
+
   return (
     <section className="relative min-h-[680px] overflow-hidden md:h-[82vh] md:min-h-[720px]">
-      <img
-        src={featured.backdrop}
-        alt={`${featured.title} backdrop`}
-        width={1920}
-        height={1080}
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[8s] hover:scale-[1.025]"
-      />
+      {views.map((view, index) => (
+        <img
+          key={view.key}
+          src={view.backdrop}
+          alt={index === active ? `${view.title} backdrop` : ""}
+          width={1920}
+          height={1080}
+          aria-hidden={index !== active}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            index === active ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
       <div className="absolute inset-0 bg-hero-overlay" />
 
       <div className="page-shell relative flex h-full min-h-[680px] items-end pb-20 pt-32 md:min-h-[720px] md:items-center md:pb-16">
-        <div className="reveal max-w-2xl">
-          <span className="eyebrow rounded-sm bg-primary/15 px-2.5 py-1.5">Now showing</span>
+        <div key={slide.key} className="reveal max-w-2xl">
+          <span className="eyebrow rounded-sm bg-primary/15 px-2.5 py-1.5">{slide.eyebrow}</span>
           <h1 className="mt-5 font-display text-5xl font-bold uppercase leading-[.95] sm:text-7xl lg:text-8xl">
             {leadWords}
             {leadWords && <br />}
             <span className="text-primary">{lastWord}</span>
           </h1>
-          <p className="mt-6 max-w-xl text-base leading-7 text-foreground/75 sm:text-lg">
-            {featured.description}
-          </p>
+          {slide.blurb && (
+            <p className="mt-6 max-w-xl text-base leading-7 text-foreground/75 sm:text-lg">
+              {slide.blurb}
+            </p>
+          )}
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold">
-            <span className="flex items-center gap-1 text-rating">
-              <Star className="size-4 fill-current" /> {featured.rating}
-            </span>
-            <span>{featured.genres.slice(0, 2).join(" · ")}</span>
-            <span className="flex items-center gap-1">
-              <Clock3 className="size-4" /> {featured.duration}
-            </span>
-            <span>{featured.language}</span>
+            {slide.rating !== null && (
+              <span className="flex items-center gap-1 text-rating">
+                <Star className="size-4 fill-current" /> {slide.rating}
+              </span>
+            )}
+            {facts.map((fact) => (
+              <span key={fact}>{fact}</span>
+            ))}
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <Link to={`/movies/${featured.id}`}>
+              <Link to={slide.href}>
                 <Ticket /> Book tickets
               </Link>
             </Button>
@@ -630,7 +753,7 @@ function Hero() {
               <Play /> Watch trailer
             </Button>
             <Button asChild size="lg" variant="ghost">
-              <Link to={`/movies/${featured.id}`}>
+              <Link to={slide.href}>
                 More info <ChevronRight />
               </Link>
             </Button>
@@ -638,11 +761,24 @@ function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2">
-        <span className="h-1 w-8 rounded bg-primary" />
-        <span className="h-1 w-2 rounded bg-foreground/30" />
-        <span className="h-1 w-2 rounded bg-foreground/30" />
-      </div>
+      {/* One dot per slide that actually exists — the three fixed dots this
+          replaced implied a carousel the page did not have. */}
+      {views.length > 1 && (
+        <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2">
+          {views.map((view, index) => (
+            <button
+              key={view.key}
+              type="button"
+              aria-label={`Show ${view.title}`}
+              aria-current={index === active}
+              onClick={() => setActive(index)}
+              className={`h-1 rounded transition-all ${
+                index === active ? "w-8 bg-primary" : "w-2 bg-foreground/30 hover:bg-foreground/60"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

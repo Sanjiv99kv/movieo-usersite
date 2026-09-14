@@ -121,6 +121,45 @@ async function send<T>(path: string, options: RequestOptions = {}): Promise<T> {
 
 // ------------------------------------------------------------------ endpoints
 
+export interface HeroGenre {
+  slug: string;
+  name: string;
+}
+
+export interface HeroLanguage {
+  code: string;
+  name: string;
+  nativeName: string | null;
+  isOriginal: boolean;
+}
+
+/**
+ * One slide of the homepage hero.
+ *
+ * Values arrive raw — `runtimeMinutes: 166`, not `"2h 46m"`; `voteCount:
+ * 142000`, not `"142K"` — because how they read is this app's decision, not the
+ * server's. `bucket` is the exception: it is derived server-side from whether
+ * screenings exist, so the eyebrow cannot claim "Now showing" for a film with
+ * nothing to book.
+ */
+export interface HeroSlide {
+  id: string;
+  slug: string;
+  title: string;
+  tagline: string | null;
+  backdropUrl: string | null;
+  posterUrl: string | null;
+  trailerUrl: string | null;
+  certificate: string | null;
+  runtimeMinutes: number | null;
+  criticRating: number | null;
+  voteCount: number;
+  releaseDate: string | null;
+  bucket: "now_showing" | "coming_soon";
+  genres: HeroGenre[];
+  languages: HeroLanguage[];
+}
+
 export interface Session {
   accessToken: string;
   expiresIn: number;
@@ -216,6 +255,16 @@ export const api = {
   logoutEverywhere: () => send<{ status: string }>("/auth/logout-all", { method: "POST" }),
 
   /** Full page navigation: the OAuth dance has to happen in the browser. */
+  /**
+   * The homepage hero. Public — `auth: false` keeps the bearer header off a
+   * cacheable response, so a CDN cannot key it per user.
+   */
+  hero: (limit?: number) =>
+    send<{ slides: HeroSlide[] }>(
+      `/home/hero${limit === undefined ? "" : `?limit=${String(limit)}`}`,
+      { auth: false },
+    ),
+
   googleSignInUrl: () => `${BASE_URL}/auth/oauth/google`,
 };
 
